@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 static inline void initInterrupt(void)
 {
@@ -25,6 +26,24 @@ ISR(PCINT0_vect)
         PORTB ^= (1 << PB3) | (1 << PB4);
         _delay_ms(11);
     }  
+}
+
+
+
+static inline void initTimer1(void){
+  TCCR1 |= (1 << CTC1);  // clear timer on compare match
+  TCCR1 |= (1 << CS13) | (1 << CS12) | (1 << CS11); //clock prescaler 8192
+  OCR1C = 122; // compare match value 
+  TIMSK |= (1 << OCIE1A); // enable compare match interrupt
+}
+
+ISR(TIMER1_COMPA_vect){
+    if(i == 15)   
+        i = 0;
+    else 
+        i++;
+    
+    PORTB = i;  // write updated i to PORTB
 }
 
 int main(void)
